@@ -1,60 +1,59 @@
 #include "sort.h"
-#include <stdio.h>
-/**
- *_calloc - this is a calloc function
- *@nmemb: number of elemets
- *@size: bit size of each element
- *Return: pointer to memory assignement
- */
-void *_calloc(unsigned int nmemb, unsigned int size)
-{
-	unsigned int i = 0;
-	char *p;
+#include <stdlib.h>
 
-	if (nmemb == 0 || size == 0)
-		return ('\0');
-	p = malloc(nmemb * size);
-	if (p == '\0')
-		return ('\0');
-	for (i = 0; i < (nmemb * size); i++)
-		p[i] = '\0';
-	return (p);
-}
 /**
- * counting_sort - this is a counting sort method implementation
+ * arr_max - array max
+ * @array: array
+ * @size: size of the array
+ * Return: max
+ */
+int arr_max(int *array, size_t size)
+{
+	int max;
+	size_t i;
+
+	max = array[0];
+	for (i = 1; i < size; i++)
+		if (array[i] > max)
+			max = array[i];
+	return (max);
+}
+
+/**
+ * counting_sort - sorts an array with the Counting sort algorithm
  * @array: array to sort
- * @size: array size
+ * @size: size of the array
  */
 void counting_sort(int *array, size_t size)
 {
-	int index, maximun = 0, *counter = '\0', *tmp = '\0';
+	int *arr, *o_arr, max, num;
 	size_t i;
 
-	if (array == '\0' || size < 2)
+	if (size < 2 || !array)
 		return;
-	/* find maximun number */
-	for (i = 0; i < size; i++)
-		if (array[i] > maximun)
-			maximun = array[i];
-	counter = _calloc(maximun + 1, sizeof(int));
-	tmp = _calloc(size + 1, sizeof(int));
-	/* count the array elements */
-	for (i = 0; i < size; i++)
-		counter[array[i]]++;
-	/* get the accumulative values */
-	for (index = 1; index <= maximun; index++)
-		counter[index] += counter[index - 1];
-	print_array(counter, maximun + 1);
-	/* get the new array sorted */
-	for (i = 0; i < size; ++i)
-	{
-		tmp[counter[array[i]] - 1] = array[i];
-		counter[array[i]]--;
-	}
-	/* replace old array to new array sorted */
-	for (i = 0; i < size; i++)
-		array[i] = tmp[i];
-	free(tmp);
-	free(counter);
+	max = arr_max(array, size);
 
+	arr = malloc(sizeof(size_t) * (max + 1));
+	o_arr = malloc(sizeof(int) * size);
+
+	for (i = 0; (int)i <= max; i++)
+		arr[i] = 0;
+	for (i = 0; i < size; i++)
+	{
+		num = array[i];
+		arr[num] += 1;
+	}
+	for (i = 1; (int)i <= max; i++)
+		arr[i] += arr[i - 1];
+	print_array(arr, max + 1);
+	for (i = 0; i < size; i++)
+	{
+		o_arr[arr[array[i]] - 1] = array[i];
+		arr[array[i]]--;
+	}
+	for (i = 0; i < size; i++)
+		array[i] = o_arr[i];
+
+	free(o_arr);
+	free(arr);
 }

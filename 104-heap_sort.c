@@ -1,78 +1,57 @@
+#include <stdint.h>
 #include "sort.h"
-#include <stdio.h>
-
+#define getParent(i) (((i) - 1) / 2)
+#define getLeft(i) (2 * (i) + 1)
+#define getRight(i) (2 * (i) + 2)
 /**
- * swap - utility function to swap to integers
- * @a: integer a
- * @b: integer b
- **/
-void swap(int *a, int *b)
-{
-	int t = *a;
-
-	*a = *b;
-	*b = t;
-}
-
-/**
- * maxHeapify - The main
- * assumes that everything
- * is already heapified
- * @array: array
- * @size: size of the array for print
- * @idx: index
- * @n: size of the array to run
+ * sift_down - sift_down
+ * @array: array containing heap
+ * @size: total size of array
+ * @index: index of index node of heap
+ * @nth: index of nth node in heap to examine
  */
-void maxHeapify(int *array, size_t size, int idx, size_t n)
+void sift_down(int *array, size_t size, size_t index, size_t nth)
 {
-	int largest = idx;		
-	int left = 2 * idx + 1;	
-	int right = 2 * idx + 2; 
-
-	if (right < (int)n && array[right] > array[largest])
-		largest = right;
-
-	/* Change root, if needed*/
-	if (largest != idx)
-	{
-		swap(&array[idx], &array[largest]);
-		print_array(array, size);
-		maxHeapify(array, size, largest, n);
-	}
+size_t largest, left, right;
+do {
+left = getLeft(index);
+right = getRight(index);
+largest = index;
+if (right <= nth && array[right] > array[index])
+largest = right;
+if (array[left] > array[largest])
+largest = left;
+if (index == largest)
+return;
+array[index] ^= array[largest];
+array[largest] ^= array[index];
+array[index] ^= array[largest];
+print_array(array, size);
+index = largest;
+} while (getLeft(index) <= nth);
 }
-
 /**
- * heap_sort -  The 
+ * heap_sort - use heap sort
  * @array: array to sort
- * @size: size of the array
- **/
+ * @size: size of array
+ */
 void heap_sort(int *array, size_t size)
 {
-	int i;
-	/**
-	 * Start from bottommost
-     * internal modes in bottom up way
-	 */
-	if (array == '\0' || size < 2)
-		return;
-
-	for (i = (size - 2) / 2; i >= 0; --i)
-		maxHeapify(array, size, i, size);
-
-	/**
-	* Repeat follow
-	*/
-	for (i = (size - 1); i > 0; --i)
-	{
-		/**
-		* The largest 
-		*it with the las
-		*size of heap by 1.
-		*/
-		swap(&array[0], &array[i]);
-		print_array(array, size);
-
-		/* Finally, heapify the root of tree.*/
-		maxHeapify(array, size, 0, i);
-	}
+size_t node, sorted;
+if (array == NULL || size < 2)
+return;
+for (node = getParent(size - 1); node != SIZE_MAX; node--)
+sift_down(array, size, node, size - 1);
+for (sorted = size - 1; sorted > 1; sorted--)
+{
+array[0] ^= array[sorted];
+array[sorted] ^= array[0];
+array[0] ^= array[sorted];
+print_array(array, size);
+sift_down(array, size, 0, sorted - 1);
+}
+array[0] ^= array[1];
+array[1] ^= array[0];
+array[0] ^= array[1];
+print_array(array, size);
 }
